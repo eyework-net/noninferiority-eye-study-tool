@@ -6,6 +6,7 @@
 ## 概要
 
 このツールは、眼科領域の研究デザインを想定して作成しています。
+https://eyework-net.github.io/noninferiority-eye-study-tool/
 
 主な対象は以下です。
 
@@ -35,7 +36,7 @@
 
 ## 使い方
 
-1. `index.html` をブラウザで開きます。
+1. https://eyework-net.github.io/noninferiority-eye-study-tool/ をブラウザで開きます。
 2. 研究テーマ、主要評価項目、非劣勢マージン、標準偏差などを入力します。
 3. 解析単位や反復測定の有無を選択します。
 4. 推定n数と推奨解析手法を確認します。
