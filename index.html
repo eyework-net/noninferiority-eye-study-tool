@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>眼科研究特化 非劣勢試験デザイン支援ツール</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: #f4f7fb;
+      color: #1f2d3d;
+    }
+
+    header {
+      background: linear-gradient(135deg, #163d5c, #2b8ac6);
+      color: white;
+      padding: 28px 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 1.9rem;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.95;
+      font-size: 0.98rem;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 24px auto 48px;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .sidebar {
+      padding: 18px;
+      position: sticky;
+      top: 16px;
+      align-self: start;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 14px;
+      color: #163d5c;
+      font-size: 1.16rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      background: #e6edf5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2f855a, #2b8ac6);
+      transition: width 0.25s ease;
+    }
+
+    .progress-text {
+      margin-top: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .legend {
+      margin-top: 18px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #425466;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color: white;
+      margin-right: 6px;
+    }
+
+    .badge.locked { background: #a0aec0; }
+    .badge.active { background: #2b8ac6; }
+    .badge.done { background: #2f855a; }
+
+    .util-btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: #edf2f7;
+      margin-top: 10px;
+    }
+
+    .util-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .small-note {
+      margin-top: 14px;
+      color: #718096;
+      font-size: 0.86rem;
+      line-height: 1.6;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .calculator {
+      padding: 20px;
+      border-left: 8px solid #6b46c1;
+    }
+
+    .calculator h2 {
+      margin: 0 0 14px;
+      color: #44337a;
+      font-size: 1.28rem;
+    }
+
+    .section-title {
+      margin: 22px 0 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1f4e79;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #3d4a5c;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e0;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fbfdff;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .result-area {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .result-box {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .result-box h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+      color: #163d5c;
+    }
+
+    .big-number {
+      font-size: 1.32rem;
+      font-weight: 900;
+      color: #2b6cb0;
+      line-height: 1.5;
+    }
+
+    .analysis-box {
+      line-height: 1.7;
+      font-size: 0.92rem;
+      color: #22543d;
+      background: #f0fff4;
+      border: 1px solid #c6f6d5;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .warning {
+      line-height: 1.7;
+      font-size: 0.9rem;
+      color: #742a2a;
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .methods-box {
+      margin-top: 14px;
+      background: #fffaf0;
+      border: 1px solid #fbd38d;
+      border-radius: 14px;
+      padding: 14px;
+      line-height: 1.7;
+      font-size: 0.9rem;
+      color: #744210;
+      white-space: pre-wrap;
+    }
+
+    .step {
+      padding: 18px;
+      border-left: 8px solid #a0aec0;
+      opacity: 0.55;
+      transform: scale(0.99);
+      transition: all 0.25s ease;
+    }
+
+    .step.active-step {
+      opacity: 1;
+      transform: scale(1);
+      border-left-color: #2b8ac6;
+    }
+
+    .step.done-step {
+      opacity: 1;
+      border-left-color: #2f855a;
+      background: #f6fffa;
+    }
+
+    .step-number {
+      display: inline-block;
+      background: #e2e8f0;
+      color: #2d3748;
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.84rem;
+      margin-bottom: 10px;
+    }
+
+    .step.active-step .step-number {
+      background: #bee3f8;
+      color: #1a365d;
+    }
+
+    .step.done-step .step-number {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .step h3 {
+      margin: 0 0 10px;
+      color: #1a365d;
+      font-size: 1.12rem;
+    }
+
+    .task, .checkpoint {
+      margin-bottom: 10px;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .task strong, .checkpoint strong {
+      color: #1f4e79;
+    }
+
+    .step-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .step button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .complete-btn {
+      background: #2b8ac6;
+      color: white;
+    }
+
+    .complete-btn:hover:not(:disabled) {
+      background: #1f6f9e;
+    }
+
+    .reopen-btn {
+      background: #edf2f7;
+      color: #2d3748;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .connector {
+      text-align: center;
+      color: #718096;
+      font-size: 1.4rem;
+      height: 12px;
+    }
+
+    .final-box {
+      padding: 20px;
+      border: 2px dashed #d69e2e;
+      background: #fffbea;
+      display: none;
+    }
+
+    .final-box.show {
+      display: block;
+    }
+
+    .final-box h3 {
+      margin-top: 0;
+      color: #744210;
+    }
+
+    @media (max-width: 980px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .grid,
+      .grid-3,
+      .result-area {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>眼科研究特化 非劣勢試験デザイン支援ツール</h1>
+    <p>logMAR・屈折誤差・コントラスト感度・両眼データ・反復測定・IOL比較に対応</p>
+  </header>
+
+  <div class="container">
+    <aside class="card sidebar">
+      <h2>進捗状況</h2>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">0 / 10 完了</div>
+
+      <div class="legend">
+        <p><span class="badge locked">未解放</span> まだ進めない段階</p>
+        <p><span class="badge active">進行中</span> 今取り組む課題</p>
+        <p><span class="badge done">完了</span> クリア済み</p>
+      </div>
+
+      <button class="util-btn" id="saveBtn">進捗とメモを保存</button>
+      <button class="util-btn" id="resetBtn">リセット</button>
+
+      <div class="small-note">
+        ※ このツールは研究デザイン初期検討用です。<br>
+        ※ 症例数は正規近似・簡易補正による概算です。<br>
+        ※ 投稿・倫理申請・学会発表では、統計ソフトまたは統計家による検証を推奨します。
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="card calculator">
+        <h2>眼科研究用：簡易n数計算・解析手法提案</h2>
+
+        <div class="section-title">1. 研究の基本設定</div>
+        <div class="grid">
+          <div>
+            <label for="studyTheme">研究テーマ</label>
+            <select id="studyTheme">
+              <option value="iol">IOL比較：単焦点・モノフォーカルプラス・EDOF・多焦点</option>
+              <option value="refraction">屈折・予測誤差・眼軸長関連研究</option>
+              <option value="visual">視力・コントラスト感度・視機能評価</option>
+              <option value="screening">スクリーニング・診断精度・判定一致</option>
+              <option value="safety">合併症・再手術・有害事象</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="comparisonType">比較デザイン</label>
+            <select id="comparisonType">
+              <option value="parallel">独立2群比較</option>
+              <option value="paired">対応あり：左右眼・同一患者内比較</option>
+              <option value="prepost">術前後・介入前後比較</option>
+              <option value="multigroup">3群以上比較</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="outcomeType">主要評価項目</label>
+            <select id="outcomeType">
+              <option value="logmar">logMAR視力</option>
+              <option value="diopter">屈折誤差・予測誤差 D</option>
+              <option value="contrast">コントラスト感度・logCS</option>
+              <option value="continuous">その他の連続値</option>
+              <option value="binary">成功率・合併症率・再手術率などの二値</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="direction">悪い方向</label>
+            <select id="direction">
+              <option value="higherBad">値が大きいほど悪い：logMAR、誤差、合併症率など</option>
+              <option value="lowerBad">値が小さいほど悪い：成功率、感度、満足度スコアなど</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-title">2. 症例数計算パラメータ</div>
+        <div class="grid-3">
+          <div>
+            <label for="alpha">片側有意水準 α</label>
+            <select id="alpha">
+              <option value="0.025">0.025</option>
+              <option value="0.05">0.05</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="power">検出力</label>
+            <select id="power">
+              <option value="0.8">80%</option>
+              <option value="0.9">90%</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="dropout">脱落率・評価不能率（%）</label>
+            <input type="number" id="dropout" value="10" min="0" max="60" step="1">
+          </div>
+
+          <div class="continuous-field">
+            <label for="sd">標準偏差 SD</label>
+            <input type="number" id="sd" value="0.15" min="0.001" step="0.001">
+          </div>
+
+          <div class="continuous-field">
+            <label for="marginContinuous">非劣勢マージン Δ</label>
+            <input type="number" id="marginContinuous" value="0.10" min="0.001" step="0.001">
+          </div>
+
+          <div class="continuous-field">
+            <label for="expectedDiff">期待される群間差</label>
+            <input type="number" id="expectedDiff" value="0" step="0.001">
+          </div>
+
+          <div class="binary-field" style="display:none;">
+            <label for="controlRate">標準法の成功率・イベント率（%）</label>
+            <input type="number" id="controlRate" value="90" min="1" max="99" step="1">
+          </div>
+
+          <div class="binary-field" style="display:none;">
+            <label for="marginBinary">許容低下幅 Δ（%ポイント）</label>
+            <input type="number" id="marginBinary" value="5" min="0.1" max="50" step="0.1">
+          </div>
+
+          <div class="binary-field" style="display:none;">
+            <label for="expectedBinaryDiff">期待される差（%ポイント）</label>
+            <input type="number" id="expectedBinaryDiff" value="0" step="0.1">
+          </div>
+        </div>
+
+        <div class="section-title">3. 眼科研究特有の補正</div>
+        <div class="grid">
+          <div>
+            <label for="eyeUnit">解析単位</label>
+            <select id="eyeUnit">
+              <option value="oneEye">1患者1眼</option>
+              <option value="bothEyes">両眼を解析に含める</option>
+              <option value="patientMean">両眼平均を患者単位で解析</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="iccEyes">左右眼相関 ICC</label>
+            <input type="number" id="iccEyes" value="0.30" min="0" max="0.95" step="0.05">
+          </div>
+
+          <div>
+            <label for="repeated">反復測定の有無</label>
+            <select id="repeated">
+              <option value="no">なし：主要評価時点のみ</option>
+              <option value="distance">距離別：遠方・中間・近方など</option>
+              <option value="time">時点別：1週・1か月・3か月など</option>
+              <option value="both">距離別＋時点別</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="repeatCount">主要解析に含める反復数</label>
+            <input type="number" id="repeatCount" value="1" min="1" max="12" step="1">
+          </div>
+
+          <div>
+            <label for="iccRepeat">反復測定内相関</label>
+            <input type="number" id="iccRepeat" value="0.50" min="0" max="0.95" step="0.05">
+          </div>
+
+          <div>
+            <label for="baselineAdjust">術前値・ベースライン調整</label>
+            <select id="baselineAdjust">
+              <option value="yes">あり：ANCOVA/回帰/混合モデルで調整</option>
+              <option value="no">なし：術後値のみ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-title">4. 眼科評価項目の詳細</div>
+        <div class="grid">
+          <div>
+            <label for="distanceSetting">測定距離</label>
+            <select id="distanceSetting">
+              <option value="far">遠方のみ</option>
+              <option value="intermediate">中間のみ</option>
+              <option value="near">近方のみ</option>
+              <option value="multi">遠方・中間・近方を含む</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="covariates">主な共変量</label>
+            <select id="covariates">
+              <option value="basic">年齢・性別・術前値</option>
+              <option value="iol">年齢・性別・術前値・眼軸長・角膜乱視・IOL種類</option>
+              <option value="device">年齢・性別・測定機器・施設・検者</option>
+              <option value="none">共変量なし</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result-area">
+          <div class="result-box">
+            <h3>推定n数</h3>
+            <div id="sampleSizeResult" class="big-number"></div>
+          </div>
+
+          <div class="result-box">
+            <h3>補正の解釈</h3>
+            <div id="designEffectResult"></div>
+          </div>
+        </div>
+
+        <div class="analysis-box" id="analysisRecommendation"></div>
+        <div class="warning" id="cautionBox"></div>
+
+        <div class="methods-box" id="methodsText"></div>
+      </section>
+
+      <div id="flowArea"></div>
+
+      <section class="card final-box" id="finalBox">
+        <h3>全ステップ完了</h3>
+        <p>
+          非劣勢試験の基本設計、眼科特有の解析単位、簡易n数、解析方針、判定ルールを整理しました。
+          次は、非劣勢マージンの根拠を文献・臨床判断に基づいて固定し、研究計画書またはMethodsへ落とし込んでください。
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const steps = [
+      {
+        title: "非劣勢で検証する臨床的理由を明確にする",
+        task: "新しいIOL、検査法、スクリーニング法、解析法が、標準法より明らかに優れていなくても採用する価値がある理由を整理します。",
+        checkpoint: "患者負担、検査時間、侵襲性、費用、安全性、実施しやすさ、説明しやすさなど、効果以外の利点を説明できる。"
+      },
+      {
+        title: "標準法・対照群を決める",
+        task: "比較対象となる標準治療、標準IOL、標準検査、既存プロトコルを決めます。",
+        checkpoint: "対照群が現時点の標準法として妥当であり、既報または臨床実態で説明できる。"
+      },
+      {
+        title: "主要評価項目を1つに絞る",
+        task: "logMAR、屈折誤差、コントラスト感度、成功率、合併症率などから、非劣勢を主張する主軸を1つ決めます。",
+        checkpoint: "主要評価項目が明確で、測定方法、測定時点、測定距離が固定されている。"
+      },
+      {
+        title: "非劣勢マージン Δ を決める",
+        task: "どこまでなら臨床的に許容できる差かを決めます。統計上都合のよい値ではなく、臨床上意味のある値にします。",
+        checkpoint: "Δの根拠を、既報、臨床判断、測定誤差、患者への影響から説明できる。"
+      },
+      {
+        title: "解析単位を決める",
+        task: "1患者1眼、両眼、患者平均、左右眼比較のどれで解析するかを決めます。",
+        checkpoint: "両眼を含む場合、左右眼相関を無視しない解析方針になっている。"
+      },
+      {
+        title: "症例数を見積もる",
+        task: "Δ、SDまたは成功率、有意水準、検出力、脱落率、両眼相関を使って必要症例数を見積もります。",
+        checkpoint: "1群あたりの患者数、総患者数、必要眼数、脱落込みの数を説明できる。"
+      },
+      {
+        title: "推奨解析手法を固定する",
+        task: "評価項目とデザインに応じて、平均差、リスク差、ANCOVA、混合効果モデル、GEEなどを選びます。",
+        checkpoint: "主要解析と感度分析を分けて記載できる。"
+      },
+      {
+        title: "ITT解析とper-protocol解析の扱いを決める",
+        task: "非劣勢試験では、解析集団によって結論が変わることがあるため、ITTとPPの両方を検討します。",
+        checkpoint: "どちらを主要解析とし、どちらを感度分析とするかを事前に書ける。"
+      },
+      {
+        title: "非劣勢判定ルールを固定する",
+        task: "群間差の信頼区間と非劣勢マージンを比較して判定するルールを固定します。",
+        checkpoint: "有意差なし＝非劣勢、という誤った判断を避け、信頼区間で判定できる。"
+      },
+      {
+        title: "Methodsに落とし込む",
+        task: "研究デザイン、主要評価項目、Δ、症例数、解析手法、判定ルール、欠測処理をMethodsに記載します。",
+        checkpoint: "第三者が読んでも、非劣勢試験として再現できる記載になっている。"
+      }
+    ];
+
+    const state = {
+      completed: Array(steps.length).fill(false),
+      memos: Array(steps.length).fill("")
+    };
+
+    function zValueForAlpha(alpha) {
+      if (alpha === 0.025) return 1.96;
+      if (alpha === 0.05) return 1.645;
+      return 1.96;
+    }
+
+    function zValueForPower(power) {
+      if (power === 0.8) return 0.84;
+      if (power === 0.9) return 1.282;
+      return 0.84;
+    }
+
+    function setDefaultsByOutcome() {
+      const outcome = document.getElementById("outcomeType").value;
+      const sd = document.getElementById("sd");
+      const margin = document.getElementById("marginContinuous");
+      const direction = document.getElementById("direction");
+
+      if (outcome === "logmar") {
+        sd.value = 0.15;
+        margin.value = 0.10;
+        direction.value = "higherBad";
+      }
+
+      if (outcome === "diopter") {
+        sd.value = 0.35;
+        margin.value = 0.25;
+        direction.value = "higherBad";
+      }
+
+      if (outcome === "contrast") {
+        sd.value = 0.20;
+        margin.value = 0.15;
+        direction.value = "lowerBad";
+      }
+
+      if (outcome === "continuous") {
+        sd.value = 1.00;
+        margin.value = 0.50;
+      }
+
+      calculate();
+    }
+
+    function updateOutcomeFields() {
+      const outcome = document.getElementById("outcomeType").value;
+      const isBinary = outcome === "binary";
+
+      document.querySelectorAll(".continuous-field").forEach(el => {
+        el.style.display = isBinary ? "none" : "block";
+      });
+
+      document.querySelectorAll(".binary-field").forEach(el => {
+        el.style.display = isBinary ? "block" : "none";
+      });
+
+      calculate();
+    }
+
+    function calculate() {
+      const outcome = document.getElementById("outcomeType").value;
+      const theme = document.getElementById("studyTheme").value;
+      const comparison = document.getElementById("comparisonType").value;
+      const direction = document.getElementById("direction").value;
+
+      const alpha = Number(document.getElementById("alpha").value);
+      const power = Number(document.getElementById("power").value);
+      const dropout = Number(document.getElementById("dropout").value) / 100;
+
+      const zAlpha = zValueForAlpha(alpha);
+      const zPower = zValueForPower(power);
+
+      const eyeUnit = document.getElementById("eyeUnit").value;
+      const iccEyes = Number(document.getElementById("iccEyes").value);
+
+      const repeated = document.getElementById("repeated").value;
+      const repeatCount = Number(document.getElementById("repeatCount").value);
+      const iccRepeat = Number(document.getElementById("iccRepeat").value);
+
+      const baselineAdjust = document.getElementById("baselineAdjust").value;
+      const distanceSetting = document.getElementById("distanceSetting").value;
+      const covariates = document.getElementById("covariates").value;
+
+      let baseN = 0;
+      let adjustedN = 0;
+      let patientsPerGroup = 0;
+      let eyesPerGroup = 0;
+      let totalPatients = 0;
+      let totalEyes = 0;
+
+      let sampleText = "";
+      let designText = "";
+      let analysisText = "";
+      let cautionText = "";
+      let methodsText = "";
+
+      const isBinary = outcome === "binary";
+
+      let eyeDesignEffect = 1;
+      let eyesPerPatient = 1;
+
+      if (eyeUnit === "bothEyes") {
+        eyesPerPatient = 2;
+        eyeDesignEffect = 1 + (eyesPerPatient - 1) * iccEyes;
+      }
+
+      if (eyeUnit === "patientMean") {
+        eyesPerPatient = 2;
+        eyeDesignEffect = 1;
+      }
+
+      let repeatDesignEffect = 1;
+      if (repeated !== "no" && repeatCount > 1) {
+        repeatDesignEffect = 1 + (repeatCount - 1) * iccRepeat;
+      }
+
+      if (!isBinary) {
+        const sd = Number(document.getElementById("sd").value);
+        const margin = Number(document.getElementById("marginContinuous").value);
+        const expectedDiff = Math.abs(Number(document.getElementById("expectedDiff").value));
+
+        const effectiveMargin = Math.max(margin - expectedDiff, 0.0001);
+        baseN = Math.ceil(2 * Math.pow((zAlpha + zPower) * sd / effectiveMargin, 2));
+
+        let observationN = Math.ceil(baseN * eyeDesignEffect);
+
+        if (repeated !== "no" && repeatCount > 1) {
+          observationN = Math.ceil(observationN * eyeDesignEffect);
+        }
+
+        if (eyeUnit === "bothEyes") {
+          eyesPerGroup = observationN;
+          patientsPerGroup = Math.ceil(eyesPerGroup / 2);
+        } else {
+          patientsPerGroup = observationN;
+          eyesPerGroup = eyeUnit === "patientMean" ? patientsPerGroup * 2 : patientsPerGroup;
+        }
+
+        adjustedN = Math.ceil(patientsPerGroup / (1 - dropout));
+        totalPatients = adjustedN * 2;
+        totalEyes = eyeUnit === "bothEyes" || eyeUnit === "patientMean" ? totalPatients * 2 : totalPatients;
+
+        sampleText = 
+          `独立データ換算：1群 ${baseN}例\n` +
+          `推奨：1群 ${adjustedN}患者、合計 ${totalPatients}患者\n` +
+          `想定眼数：合計 ${totalEyes}眼`;
+
+      } else {
+        const p = Number(document.getElementById("controlRate").value) / 100;
+        const margin = Number(document.getElementById("marginBinary").value) / 100;
+        const expectedDiff = Math.abs(Number(document.getElementById("expectedBinaryDiff").value) / 100);
+
+        const effectiveMargin = Math.max(margin - expectedDiff, 0.0001);
+        baseN = Math.ceil(
+          2 * p * (1 - p) * Math.pow(zAlpha + zPower, 2) / Math.pow(effectiveMargin, 2)
+        );
+
+        let observationN = Math.ceil(baseN * eyeDesignEffect);
+
+        if (eyeUnit === "bothEyes") {
+          eyesPerGroup = observationN;
+          patientsPerGroup = Math.ceil(eyesPerGroup / 2);
+        } else {
+          patientsPerGroup = observationN;
+          eyesPerGroup = eyeUnit === "patientMean" ? patientsPerGroup * 2 : patientsPerGroup;
+        }
+
+        adjustedN = Math.ceil(patientsPerGroup / (1 - dropout));
+        totalPatients = adjustedN * 2;
+        totalEyes = eyeUnit === "bothEyes" || eyeUnit === "patientMean" ? totalPatients * 2 : totalPatients;
+
+        sampleText =
+          `独立データ換算：1群 ${baseN}例\n` +
+          `推奨：1群 ${adjustedN}患者、合計 ${totalPatients}患者\n` +
+          `想定眼数：合計 ${totalEyes}眼`;
+      }
+
+      designText =
+        `左右眼補正：design effect = ${eyeDesignEffect.toFixed(2)}\n` +
+        `反復測定数：${repeatCount}\n` +
+        `反復測定は症例数計算では参考扱いです。主要評価項目を単一時点・単一距離に固定する場合、反復測定数で単純にnを減らすべきではありません。`;
+
+      analysisText = buildAnalysisText(outcome, theme, comparison, eyeUnit, repeated, baselineAdjust, distanceSetting, covariates, direction);
+      cautionText = buildCautionText(outcome, eyeUnit, repeated, comparison);
+      methodsText = buildMethodsText(outcome, comparison, eyeUnit, baselineAdjust, direction, adjustedN, totalPatients);
+
+      document.getElementById("sampleSizeResult").innerText = sampleText;
+      document.getElementById("designEffectResult").innerText = designText;
+      document.getElementById("analysisRecommendation").innerHTML = analysisText;
+      document.getElementById("cautionBox").innerHTML = cautionText;
+      document.getElementById("methodsText").innerText = methodsText;
+    }
+
+    function buildAnalysisText(outcome, theme, comparison, eyeUnit, repeated, baselineAdjust, distanceSetting, covariates, direction) {
+      let outcomeText = "";
+      let mainAnalysis = "";
+      let modelText = "";
+      let sensitivity = "";
+      let judgement = "";
+
+      if (outcome === "logmar") {
+        outcomeText = "主要評価項目：logMAR視力";
+        mainAnalysis = "主解析：群間差の推定値と95%信頼区間。値が大きいほど視力不良のため、新法−標準法の95%CI上限が非劣勢マージンΔを下回るかで判定。";
+      }
+
+      if (outcome === "diopter") {
+        outcomeText = "主要評価項目：屈折誤差・予測誤差";
+        mainAnalysis = "主解析：平均絶対誤差または絶対予測誤差の群間差と95%信頼区間。分布が歪む場合はブートストラップ信頼区間またはロバスト解析を推奨。";
+      }
+
+      if (outcome === "contrast") {
+        outcomeText = "主要評価項目：コントラスト感度・logCS";
+        mainAnalysis = "主解析：群間差の推定値と95%信頼区間。値が小さいほど不良であれば、新法−標準法の95%CI下限が−Δを下回らないかで判定。";
+      }
+
+      if (outcome === "continuous") {
+        outcomeText = "主要評価項目：連続値アウトカム";
+        mainAnalysis = "主解析：群間差の推定値と95%信頼区間。悪い方向の信頼区間限界が非劣勢マージンを超えないかで判定。";
+      }
+
+      if (outcome === "binary") {
+        outcomeText = "主要評価項目：二値アウトカム";
+        mainAnalysis = "主解析：リスク差と95%信頼区間。成功率なら新法−標準法の95%CI下限が−Δを下回らないか、合併症率なら95%CI上限がΔを上回らないかで判定。";
+      }
+
+      if (eyeUnit === "bothEyes") {
+        modelText += "両眼データ：患者IDをランダム効果とする混合効果モデル、またはGEEを推奨。左右眼を独立データとして単純解析しない。\n";
+      } else if (eyeUnit === "patientMean") {
+        modelText += "患者平均：両眼平均を1患者1データとして解析。シンプルだが、眼別情報は失われる。\n";
+      } else {
+        modelText += "1患者1眼：通常の2群比較、ANCOVA、線形回帰で扱いやすい。\n";
+      }
+
+      if (comparison === "paired") {
+        modelText += "対応あり比較：対応のある差を評価。左右眼比較では患者内相関を明示し、対応のあるt検定、線形混合モデル、またはGEEを検討。\n";
+      }
+
+      if (comparison === "prepost") {
+        modelText += "術前後比較：変化量解析よりも、術後値を目的変数、群と術前値を説明変数にしたANCOVAを優先的に検討。\n";
+      }
+
+      if (comparison === "multigroup") {
+        modelText += "3群以上比較：非劣勢の主比較を事前に1つ定義。多重比較を行う場合は階層的検定または多重性調整を検討。\n";
+      }
+
+      if (repeated !== "no") {
+        modelText += "反復測定：距離・時点を固定効果、患者IDをランダム効果とする線形混合効果モデルを推奨。群×距離、群×時点の交互作用を必要に応じて評価。\n";
+      }
+
+      if (baselineAdjust === "yes") {
+        modelText += "術前値調整：術前logMAR、術前屈折、眼軸長、角膜乱視などを共変量として調整する方針が妥当。\n";
+      }
+
+      if (theme === "iol") {
+        sensitivity += "IOL研究の感度分析：片眼解析、両眼混合モデル、術前値調整あり/なし、測定距離別解析を比較。\n";
+      }
+
+      if (theme === "refraction") {
+        sensitivity += "屈折研究の感度分析：平均誤差、平均絶対誤差、±0.50D以内割合などを副次評価として併記。\n";
+      }
+
+      if (theme === "screening") {
+        sensitivity += "スクリーニング研究：感度・特異度・陽性的中率・陰性的中率を副次評価にし、非劣勢主張は感度または検出率など1項目に絞る。\n";
+      }
+
+      if (outcome === "binary") {
+        sensitivity += "二値アウトカム：Farrington–Manning検定、リスク差の信頼区間、GEEまたはGLMによる補助解析を検討。\n";
+      }
+
+      judgement = "判定：p値ではなく、事前設定した非劣勢マージンΔと95%信頼区間の位置関係で判断する。";
+
+      return `
+        <strong>${outcomeText}</strong><br>
+        ${mainAnalysis}<br><br>
+        <strong>推奨モデル：</strong><br>
+        ${modelText.replace(/\n/g, "<br>")}
+        <strong>感度分析：</strong><br>
+        ${sensitivity.replace(/\n/g, "<br>")}
+        <strong>${judgement}</strong>
+      `;
+    }
+
+    function buildCautionText(outcome, eyeUnit, repeated, comparison) {
+      let text = "";
+
+      text += "このn数は簡易推定です。非劣勢マージンの根拠、測定誤差、臨床的許容差、既報のばらつきに基づいて再検討してください。<br>";
+
+      if (eyeUnit === "bothEyes") {
+        text += "両眼を含む場合、左右眼相関を無視すると有効症例数を過大評価し、p値や信頼区間が過度に楽観的になります。<br>";
+      }
+
+      if (repeated !== "no") {
+        text += "反復測定は情報量を増やしますが、主要評価項目を単一時点・単一距離に固定する場合、反復数に比例して必要患者数を減らすのは危険です。<br>";
+      }
+
+      if (comparison === "multigroup") {
+        text += "3群以上では、どの比較で非劣勢を主張するかを事前に固定してください。事後的な都合のよい比較は避けるべきです。<br>";
+      }
+
+      if (outcome === "diopter") {
+        text += "屈折誤差は分布が非正規になりやすいため、平均差だけでなく中央値、IQR、ブートストラップCIも検討してください。<br>";
+      }
+
+      return text;
+    }
+
+    function buildMethodsText(outcome, comparison, eyeUnit, baselineAdjust, direction, nGroup, totalN) {
+      let outcomeName = {
+        logmar: "logMAR visual acuity",
+        diopter: "refractive prediction error",
+        contrast: "contrast sensitivity",
+        continuous: "the continuous primary outcome",
+        binary: "the binary primary outcome"
+      }[outcome];
+
+      let unitText = {
+        oneEye: "one eye per participant",
+        bothEyes: "both eyes when eligible, accounting for within-participant correlation",
+        patientMean: "participant-level averaged values"
+      }[eyeUnit];
+
+      let directionText = direction === "higherBad"
+        ? "Non-inferiority will be concluded if the upper bound of the 95% confidence interval does not exceed the prespecified non-inferiority margin."
+        : "Non-inferiority will be concluded if the lower bound of the 95% confidence interval is greater than the negative prespecified non-inferiority margin.";
+
+      let modelText = "";
+
+      if (outcome === "binary") {
+        modelText = "The primary analysis will estimate the risk difference and its 95% confidence interval.";
+      } else if (eyeUnit === "bothEyes") {
+        modelText = "The primary analysis will use a mixed-effects model with participant as a random effect.";
+      } else {
+        modelText = "The primary analysis will estimate the between-group difference and its 95% confidence interval.";
+      }
+
+      if (baselineAdjust === "yes") {
+        modelText += " Baseline values and clinically relevant covariates will be included as adjustment variables.";
+      }
+
+      return `Methods draft
+
+This study will be designed as a non-inferiority study comparing the investigational ophthalmic approach with the standard approach. The primary outcome will be ${outcomeName}. The analysis unit will be ${unitText}. The non-inferiority margin will be prespecified based on clinical relevance and previous literature.
+
+${modelText} ${directionText}
+
+The estimated sample size is approximately ${nGroup} participants per group, corresponding to ${totalN} participants in total after accounting for the assumed dropout or unevaluable rate. Both intention-to-treat and per-protocol analyses will be considered, and the consistency of the results will be evaluated.`;
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem("ophthalmicNoninferiorityFlowState");
+      if (!saved) return;
+
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.completed && parsed.memos) {
+          state.completed = parsed.completed;
+          state.memos = parsed.memos;
+        }
+      } catch(e) {}
+    }
+
+    function saveSilent() {
+      document.querySelectorAll(".memo").forEach((ta, idx) => {
+        state.memos[idx] = ta.value;
+      });
+      localStorage.setItem("ophthalmicNoninferiorityFlowState", JSON.stringify(state));
+    }
+
+    function saveState() {
+      saveSilent();
+      alert("進捗とメモを保存しました。");
+    }
+
+    function resetState() {
+      if (!confirm("進捗とメモをすべてリセットしますか？")) return;
+      state.completed = Array(steps.length).fill(false);
+      state.memos = Array(steps.length).fill("");
+      localStorage.removeItem("ophthalmicNoninferiorityFlowState");
+      render();
+    }
+
+    function canAccessStep(index) {
+      if (index === 0) return true;
+      return state.completed[index - 1];
+    }
+
+    function isActiveStep(index) {
+      return canAccessStep(index) && !state.completed[index];
+    }
+
+    function updateProgress() {
+      const done = state.completed.filter(Boolean).length;
+      const percent = done / steps.length * 100;
+      document.getElementById("progressFill").style.width = percent + "%";
+      document.getElementById("progressText").textContent = `${done} / ${steps.length} 完了`;
+
+      const finalBox = document.getElementById("finalBox");
+      if (done === steps.length) {
+        finalBox.classList.add("show");
+      } else {
+        finalBox.classList.remove("show");
+      }
+    }
+
+    function toggleComplete(index, value) {
+      if (value && !canAccessStep(index)) return;
+
+      state.completed[index] = value;
+
+      if (!value) {
+        for (let i = index + 1; i < state.completed.length; i++) {
+          state.completed[i] = false;
+        }
+      }
+
+      saveSilent();
+      render();
+    }
+
+    function render() {
+      const flowArea = document.getElementById("flowArea");
+      flowArea.innerHTML = "";
+
+      steps.forEach((step, index) => {
+        const locked = !canAccessStep(index) && !state.completed[index];
+
+        const section = document.createElement("section");
+        section.className = "card step";
+
+        if (state.completed[index]) {
+          section.classList.add("done-step");
+        } else if (isActiveStep(index)) {
+          section.classList.add("active-step");
+        }
+
+        section.innerHTML = `
+          <div class="step-number">STEP ${index + 1}</div>
+          <h3>${step.title}</h3>
+          <div class="task"><strong>課題：</strong>${step.task}</div>
+          <div class="checkpoint"><strong>クリア条件：</strong>${step.checkpoint}</div>
+          <label>メモ</label>
+          <textarea class="memo" ${locked ? "disabled" : ""} placeholder="判断根拠、文献、決定事項を記録">${state.memos[index] || ""}</textarea>
+          <div class="step-buttons">
+            <button class="complete-btn" ${locked || state.completed[index] ? "disabled" : ""}>この課題をクリア</button>
+            <button class="reopen-btn" ${!state.completed[index] ? "disabled" : ""}>未完了に戻す</button>
+          </div>
+        `;
+
+        section.querySelector(".memo").addEventListener("input", saveSilent);
+        section.querySelector(".complete-btn").addEventListener("click", () => toggleComplete(index, true));
+        section.querySelector(".reopen-btn").addEventListener("click", () => toggleComplete(index, false));
+
+        flowArea.appendChild(section);
+
+        if (index < steps.length - 1) {
+          const connector = document.createElement("div");
+          connector.className = "connector";
+          connector.textContent = "↓";
+          flowArea.appendChild(connector);
+        }
+      });
+
+      updateProgress();
+    }
+
+    const inputIds = [
+      "studyTheme", "comparisonType", "direction", "alpha", "power", "dropout",
+      "sd", "marginContinuous", "expectedDiff", "controlRate", "marginBinary",
+      "expectedBinaryDiff", "eyeUnit", "iccEyes", "repeated", "repeatCount",
+      "iccRepeat", "baselineAdjust", "distanceSetting", "covariates"
+    ];
+
+    inputIds.forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", calculate);
+      el.addEventListener("change", calculate);
+    });
+
+    document.getElementById("outcomeType").addEventListener("change", () => {
+      updateOutcomeFields();
+      setDefaultsByOutcome();
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", saveState);
+    document.getElementById("resetBtn").addEventListener("click", resetState);
+
+    loadState();
+    render();
+    updateOutcomeFields();
+    setDefaultsByOutcome();
+  </script>
+</body>
+</html>
